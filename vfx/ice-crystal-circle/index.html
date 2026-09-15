@@ -4,339 +4,48 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
   <title>Ice Crystal Circle VFX</title>
-  <style>
-    html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#040913;touch-action:none;font-family:Arial}
-    canvas{display:block}
-    .back{position:fixed;left:18px;top:18px;z-index:20;color:#eaf8ff;text-decoration:none;font-size:18px}
-    .hint{position:fixed;left:50%;top:18px;transform:translateX(-50%);z-index:20;color:#d7f5ff;background:#071523dd;border:1px solid #2e6c8c;border-radius:18px;padding:8px 13px;font-size:12px;white-space:nowrap;pointer-events:none}
-    .cast{position:fixed;right:24px;bottom:26px;z-index:20;width:92px;height:92px;border-radius:50%;border:3px solid #bff5ff;color:white;font-weight:bold;font-size:15px;background:radial-gradient(circle,#7fe8ff,#1f73aa 62%,#08213d);box-shadow:0 0 26px #76ebff,0 0 65px #3bb3ff,inset 0 0 26px #f1ffff}
-    #flash{position:fixed;inset:0;z-index:15;background:#dff8ff;opacity:0;pointer-events:none;transition:opacity .15s}
-  </style>
-  <script type="importmap">
-  {
-    "imports": {
-      "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
-      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
-    }
-  }
-  </script>
+  <style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#040913;touch-action:none;font-family:Arial}canvas{display:block}.back{position:fixed;left:18px;top:18px;z-index:20;color:#eaf8ff;text-decoration:none;font-size:18px}.hint{position:fixed;left:50%;top:18px;transform:translateX(-50%);z-index:20;color:#d7f5ff;background:#071523dd;border:1px solid #2e6c8c;border-radius:18px;padding:8px 13px;font-size:12px;white-space:nowrap;pointer-events:none}.cast{position:fixed;right:24px;bottom:26px;z-index:20;width:92px;height:92px;border-radius:50%;border:3px solid #bff5ff;color:white;font-weight:bold;font-size:15px;background:radial-gradient(circle,#7fe8ff,#1f73aa 62%,#08213d);box-shadow:0 0 26px #76ebff,0 0 65px #3bb3ff,inset 0 0 26px #f1ffff}#flash{position:fixed;inset:0;z-index:15;background:#dff8ff;opacity:0;pointer-events:none;transition:opacity .15s}</style>
+  <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}</script>
 </head>
 <body>
-  <a class="back" href="../../">← VFX</a>
-  <div class="hint">Ice Crystal Circle · kristal es tajam muncul dari bumi · radius 18 unit</div>
-  <div id="flash"></div>
-  <button class="cast" id="cast">ICE</button>
+<a class="back" href="../../">← VFX</a><div class="hint">Ice Crystal Circle · kristal es tajam muncul dari bumi · radius 18 unit</div><div id="flash"></div><button class="cast" id="cast">ICE</button>
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+import {EffectComposer} from 'three/addons/postprocessing/EffectComposer.js';
+import {RenderPass} from 'three/addons/postprocessing/RenderPass.js';
+import {UnrealBloomPass} from 'three/addons/postprocessing/UnrealBloomPass.js';
 
-  <script type="module">
-    import * as THREE from 'three';
-    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-    import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-    import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-    import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x040913);
-    scene.fog = new THREE.FogExp2(0x08131d, 0.0125);
-
-    const camera = new THREE.PerspectiveCamera(56, innerWidth/innerHeight, 0.1, 150);
-    camera.position.set(0, 20, 28);
-
-    const renderer = new THREE.WebGLRenderer({antialias:true, powerPreference:'high-performance'});
-    renderer.setPixelRatio(Math.min(devicePixelRatio, 1.4));
-    renderer.setSize(innerWidth, innerHeight);
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 0.90;
-    document.body.prepend(renderer.domElement);
-
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.target.set(0, 1.8, 0);
-    controls.enableDamping = true;
-    controls.enablePan = false;
-    controls.minDistance = 10;
-    controls.maxDistance = 60;
-    controls.maxPolarAngle = Math.PI * 0.48;
-
-    const composer = new EffectComposer(renderer);
-    composer.addPass(new RenderPass(scene, camera));
-    const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 1.9, 0.55, 0.08);
-    composer.addPass(bloom);
-
-    scene.add(new THREE.HemisphereLight(0x7dd7ff, 0x05070c, 0.70));
-    const moon = new THREE.DirectionalLight(0xbce8ff, 1.15);
-    moon.position.set(-6, 15, 4);
-    scene.add(moon);
-
-    const groundMat = new THREE.MeshStandardMaterial({color:0x131c24, roughness:0.96, metalness:0.02});
-    const ground = new THREE.Mesh(new THREE.PlaneGeometry(64, 64, 30, 30), groundMat);
-    ground.rotation.x = -Math.PI/2;
-    scene.add(ground);
-
-    const grid = new THREE.GridHelper(58, 58, 0x59d7ff, 0x173e59);
-    grid.position.y = 0.08;
-    grid.material.transparent = true;
-    grid.material.opacity = 0.26;
-    scene.add(grid);
-
-    for(let i=0;i<40;i++){
-      const rock = new THREE.Mesh(
-        new THREE.DodecahedronGeometry(0.14 + Math.random()*0.48, 0),
-        groundMat
-      );
-      rock.position.set((Math.random()-0.5)*48, 0.12, (Math.random()-0.5)*48);
-      rock.scale.y = 0.55 + Math.random()*0.9;
-      rock.rotation.set(Math.random()*2, Math.random()*2, Math.random()*2);
-      scene.add(rock);
-    }
-
-    const areaRing = new THREE.Mesh(
-      new THREE.RingGeometry(17.6, 18.0, 96),
-      new THREE.MeshBasicMaterial({
-        color:0x8eefff, transparent:true, opacity:0.22,
-        side:THREE.DoubleSide, blending:THREE.AdditiveBlending, depthWrite:false
-      })
-    );
-    areaRing.rotation.x = -Math.PI/2;
-    areaRing.position.y = 0.11;
-    scene.add(areaRing);
-
-    const areaFill = new THREE.Mesh(
-      new THREE.CircleGeometry(17.55, 64),
-      new THREE.MeshBasicMaterial({
-        color:0x57d9ff, transparent:true, opacity:0.05,
-        side:THREE.DoubleSide, blending:THREE.AdditiveBlending, depthWrite:false
-      })
-    );
-    areaFill.rotation.x = -Math.PI/2;
-    areaFill.position.y = 0.10;
-    scene.add(areaFill);
-
-    const fx = new THREE.Group();
-    scene.add(fx);
-
-    const coldLight = new THREE.PointLight(0x92f5ff, 0, 40, 1.6);
-    coldLight.position.set(0, 3, 0);
-    scene.add(coldLight);
-
-    const crystalGeo = new THREE.ConeGeometry(0.45, 3.7, 5, 1);
-    crystalGeo.translate(0, 1.85, 0);
-    const sideGeo = new THREE.ConeGeometry(0.20, 1.5, 4, 1);
-    sideGeo.translate(0, 0.75, 0);
-    const shardGeo = new THREE.TetrahedronGeometry(0.11, 0);
-
-    const crystalMat = new THREE.MeshStandardMaterial({
-      color:0xdaf8ff, emissive:0x55cfff, emissiveIntensity:1.8,
-      roughness:0.12, metalness:0.08, transparent:true, opacity:0.96
-    });
-    const crystalOuterMat = new THREE.MeshBasicMaterial({
-      color:0x8defff, transparent:true, opacity:0.18,
-      blending:THREE.AdditiveBlending, depthWrite:false
-    });
-    const mistMat = new THREE.MeshBasicMaterial({
-      color:0xbdf7ff, transparent:true, opacity:0.22,
-      blending:THREE.AdditiveBlending, depthWrite:false
-    });
-    const ringMat = new THREE.MeshBasicMaterial({
-      color:0xc6fbff, transparent:true, opacity:0.90,
-      blending:THREE.AdditiveBlending, depthWrite:false
-    });
-
-    let crystals = [], shards = [], rings = [], active = false, start = 0;
-
-    function randInCircle(radius){
-      const a = Math.random() * Math.PI * 2;
-      const r = Math.sqrt(Math.random()) * radius;
-      return {x:Math.cos(a)*r, z:Math.sin(a)*r, r};
-    }
-
-    function clearFx(){
-      for(const c of crystals) fx.remove(c.group);
-      for(const s of shards) fx.remove(s.mesh);
-      for(const r of rings) fx.remove(r.mesh);
-      crystals = []; shards = []; rings = [];
-    }
-
-    function makeCrystal(now){
-      const p = randInCircle(17.2);
-      const size = 0.7 + (1 - p.r/17.2)*0.95 + Math.random()*0.55;
-      const h = 2.0 + size * (1.9 + Math.random()*1.6);
-
-      const g = new THREE.Group();
-      g.position.set(p.x, -0.06, p.z);
-      g.rotation.y = Math.random() * Math.PI * 2;
-
-      const core = new THREE.Mesh(crystalGeo, crystalMat.clone());
-      core.scale.set(size*(0.42+Math.random()*0.36), h/3.7, size*(0.38+Math.random()*0.30));
-      g.add(core);
-
-      const glow = new THREE.Mesh(crystalGeo, crystalOuterMat.clone());
-      glow.scale.copy(core.scale).multiplyScalar(1.22);
-      g.add(glow);
-
-      const sideCount = 1 + Math.floor(Math.random()*3);
-      for(let i=0;i<sideCount;i++){
-        const a = i/sideCount * Math.PI*2 + Math.random()*0.7;
-        const d = 0.18 + Math.random()*0.42;
-        const side = new THREE.Mesh(sideGeo, crystalMat.clone());
-        side.position.set(Math.cos(a)*d, 0.1, Math.sin(a)*d);
-        side.rotation.z = (Math.random()*0.55 + 0.25) * (Math.random()>.5 ? 1 : -1);
-        side.rotation.x = (Math.random()*0.25);
-        side.scale.setScalar(0.7 + Math.random()*0.85);
-        g.add(side);
-      }
-
-      g.scale.set(1, 0.04, 1);
-      fx.add(g);
-      crystals.push({
-        group:g, core, glow,
-        born:now,
-        rise:480 + Math.random()*420,
-        hold:380 + Math.random()*350,
-        delay:Math.random()*350
-      });
-    }
-
-    function burstRing(now){
-      const mesh = new THREE.Mesh(
-        new THREE.TorusGeometry(0.8, 0.08, 8, 56),
-        ringMat.clone()
-      );
-      mesh.rotation.x = Math.PI/2;
-      mesh.position.y = 0.18;
-      fx.add(mesh);
-      rings.push({mesh, born:now, life:900, max:18.2});
-    }
-
-    function spawnShards(now){
-      for(let i=0;i<130;i++){
-        const p = randInCircle(17.0);
-        const m = new THREE.Mesh(shardGeo, mistMat.clone());
-        m.position.set(p.x, 0.18 + Math.random()*0.25, p.z);
-        m.scale.setScalar(0.55 + Math.random()*1.35);
-        m.userData.v = new THREE.Vector3(
-          (Math.random()-0.5)*0.06,
-          0.02 + Math.random()*0.06,
-          (Math.random()-0.5)*0.06
-        );
-        fx.add(m);
-        shards.push({
-          mesh:m, born:now + Math.random()*250, life:650 + Math.random()*600,
-          type: Math.random() > 0.42 ? 'mist' : 'ice'
-        });
-      }
-    }
-
-    function cast(){
-      if(active) return;
-      clearFx();
-      active = true;
-      start = performance.now();
-      burstRing(start);
-      spawnShards(start);
-      for(let i=0;i<68;i++) makeCrystal(start);
-      const F = document.querySelector('#flash');
-      F.style.opacity = '.42';
-      setTimeout(()=>F.style.opacity='0', 65);
-    }
-
-    function updateCrystals(now){
-      crystals = crystals.filter(c=>{
-        const age = now - c.born - c.delay;
-        if(age < 0) return true;
-
-        const total = c.rise + c.hold + 520;
-        if(age > total){
-          fx.remove(c.group);
-          return false;
-        }
-
-        if(age <= c.rise){
-          const u = age / c.rise;
-          const eased = 1 - Math.pow(1-u, 3);
-          c.group.scale.y = 0.04 + eased*0.96;
-          c.group.position.y = eased * 0.1;
-          c.group.rotation.y += 0.008;
-        }else{
-          c.group.scale.y = 1.0;
-          const fadeT = Math.max(0, age - c.rise - c.hold) / 520;
-          const op = 0.96 * (1 - fadeT);
-          c.core.material.opacity = Math.max(0, op);
-          c.glow.material.opacity = Math.max(0, 0.18 * (1 - fadeT));
-        }
-        return true;
-      });
-    }
-
-    function updateShards(now){
-      shards = shards.filter(s=>{
-        const age = now - s.born;
-        if(age < 0) return true;
-        if(age > s.life){
-          fx.remove(s.mesh);
-          return false;
-        }
-        s.mesh.position.add(s.mesh.userData.v);
-        s.mesh.userData.v.y *= 0.985;
-        s.mesh.scale.multiplyScalar(0.9985);
-        const a = 1 - age/s.life;
-        s.mesh.material.opacity = (s.type === 'mist' ? 0.18 : 0.24) * a;
-        return true;
-      });
-    }
-
-    function updateRings(now){
-      rings = rings.filter(r=>{
-        const age = now - r.born;
-        if(age > r.life){
-          fx.remove(r.mesh);
-          return false;
-        }
-        const u = age / r.life;
-        const radiusScale = 1 + u * (r.max / 0.8);
-        r.mesh.scale.setScalar(radiusScale);
-        r.mesh.material.opacity = 0.90 * (1-u);
-        return true;
-      });
-    }
-
-    function loop(now){
-      requestAnimationFrame(loop);
-      controls.update();
-
-      if(active){
-        const age = now - start;
-        updateCrystals(now);
-        updateShards(now);
-        updateRings(now);
-
-        coldLight.intensity = 7 + Math.max(0, 1 - age/1100) * 30;
-        areaRing.material.opacity = 0.22 + Math.sin(now*0.009)*0.05;
-        areaFill.material.opacity = 0.05 + Math.sin(now*0.007)*0.02;
-        bloom.strength = 1.85 + Math.max(0,1-age/800)*0.65;
-
-        if(age > 2300 && crystals.length === 0 && shards.length === 0 && rings.length === 0){
-          active = false;
-          coldLight.intensity = 0;
-        }
-      }
-
-      composer.render();
-    }
-
-    requestAnimationFrame(loop);
-    document.querySelector('#cast').addEventListener('pointerdown', e=>{
-      e.preventDefault();
-      e.stopPropagation();
-      cast();
-    });
-
-    addEventListener('resize', ()=>{
-      camera.aspect = innerWidth/innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(innerWidth, innerHeight);
-      composer.setSize(innerWidth, innerHeight);
-    });
-
-    setTimeout(cast, 900);
-  </script>
-</body>
-</html>
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x040913);scene.fog=new THREE.FogExp2(0x08131d,.0125);
+const camera=new THREE.PerspectiveCamera(56,innerWidth/innerHeight,.1,150);camera.position.set(0,20,28);
+const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.4));renderer.setSize(innerWidth,innerHeight);renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=.9;document.body.prepend(renderer.domElement);
+const controls=new OrbitControls(camera,renderer.domElement);controls.target.set(0,1.8,0);controls.enableDamping=true;controls.enablePan=false;controls.minDistance=10;controls.maxDistance=60;controls.maxPolarAngle=Math.PI*.48;
+const composer=new EffectComposer(renderer);composer.addPass(new RenderPass(scene,camera));const bloom=new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),1.9,.55,.08);composer.addPass(bloom);
+scene.add(new THREE.HemisphereLight(0x7dd7ff,0x05070c,.7));const moon=new THREE.DirectionalLight(0xbce8ff,1.15);moon.position.set(-6,15,4);scene.add(moon);
+const groundMat=new THREE.MeshStandardMaterial({color:0x131c24,roughness:.96,metalness:.02});const ground=new THREE.Mesh(new THREE.PlaneGeometry(64,64,30,30),groundMat);ground.rotation.x=-Math.PI/2;scene.add(ground);
+const grid=new THREE.GridHelper(58,58,0x59d7ff,0x173e59);grid.position.y=.08;grid.material.transparent=true;grid.material.opacity=.26;scene.add(grid);
+for(let i=0;i<40;i++){const rock=new THREE.Mesh(new THREE.DodecahedronGeometry(.14+Math.random()*.48,0),groundMat);rock.position.set((Math.random()-.5)*48,.12,(Math.random()-.5)*48);rock.scale.y=.55+Math.random()*.9;rock.rotation.set(Math.random()*2,Math.random()*2,Math.random()*2);scene.add(rock)}
+const areaRing=new THREE.Mesh(new THREE.RingGeometry(17.6,18,96),new THREE.MeshBasicMaterial({color:0x8eefff,transparent:true,opacity:.22,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,depthWrite:false}));areaRing.rotation.x=-Math.PI/2;areaRing.position.y=.11;scene.add(areaRing);
+const areaFill=new THREE.Mesh(new THREE.CircleGeometry(17.55,64),new THREE.MeshBasicMaterial({color:0x57d9ff,transparent:true,opacity:.05,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,depthWrite:false}));areaFill.rotation.x=-Math.PI/2;areaFill.position.y=.1;scene.add(areaFill);
+const fx=new THREE.Group();scene.add(fx);const coldLight=new THREE.PointLight(0x92f5ff,0,40,1.6);coldLight.position.set(0,3,0);scene.add(coldLight);
+const crystalGeo=new THREE.ConeGeometry(.45,3.7,5,1);crystalGeo.translate(0,1.85,0);const sideGeo=new THREE.ConeGeometry(.2,1.5,4,1);sideGeo.translate(0,.75,0);const shardGeo=new THREE.TetrahedronGeometry(.11,0);
+const crystalMat=new THREE.MeshStandardMaterial({color:0xdaf8ff,emissive:0x55cfff,emissiveIntensity:1.8,roughness:.12,metalness:.08,transparent:true,opacity:.96});const crystalOuterMat=new THREE.MeshBasicMaterial({color:0x8defff,transparent:true,opacity:.18,blending:THREE.AdditiveBlending,depthWrite:false});const mistMat=new THREE.MeshBasicMaterial({color:0xbdf7ff,transparent:true,opacity:.22,blending:THREE.AdditiveBlending,depthWrite:false});const ringMat=new THREE.MeshBasicMaterial({color:0xc6fbff,transparent:true,opacity:.9,blending:THREE.AdditiveBlending,depthWrite:false});
+let crystals=[],shards=[],rings=[],active=false,start=0,audioCtx=null;
+function setupAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume()}
+function iceSound(){if(!audioCtx||audioCtx.state!=='running')return;const c=audioCtx,t=c.currentTime,master=c.createGain();master.gain.setValueAtTime(.0001,t);master.gain.exponentialRampToValueAtTime(.52,t+.025);master.gain.exponentialRampToValueAtTime(.0001,t+1.55);master.connect(c.destination);
+ const low=c.createOscillator(),lg=c.createGain();low.type='sine';low.frequency.setValueAtTime(150,t);low.frequency.exponentialRampToValueAtTime(58,t+.65);lg.gain.setValueAtTime(.34,t);lg.gain.exponentialRampToValueAtTime(.0001,t+.8);low.connect(lg).connect(master);low.start(t);low.stop(t+.85);
+ const n=4096,b=c.createBuffer(1,n,c.sampleRate),d=b.getChannelData(0);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*(1-i/n);const src=c.createBufferSource();src.buffer=b;const hp=c.createBiquadFilter();hp.type='highpass';hp.frequency.value=2600;const ng=c.createGain();ng.gain.setValueAtTime(.22,t);ng.gain.exponentialRampToValueAtTime(.0001,t+.12);src.connect(hp).connect(ng).connect(master);src.start(t);
+ for(let i=0;i<11;i++){const o=c.createOscillator(),g=c.createGain(),tt=t+.05+i*.045+Math.random()*.035;o.type=i%2?'triangle':'sine';o.frequency.setValueAtTime(900+Math.random()*1500,tt);o.frequency.exponentialRampToValueAtTime(1800+Math.random()*2400,tt+.09);g.gain.setValueAtTime(.0001,tt);g.gain.exponentialRampToValueAtTime(.10+Math.random()*.08,tt+.006);g.gain.exponentialRampToValueAtTime(.0001,tt+.14);o.connect(g).connect(master);o.start(tt);o.stop(tt+.16)}
+ const shimmer=c.createOscillator(),sg=c.createGain();shimmer.type='sine';shimmer.frequency.setValueAtTime(2100,t+.22);shimmer.frequency.exponentialRampToValueAtTime(3600,t+1.05);sg.gain.setValueAtTime(.0001,t+.22);sg.gain.exponentialRampToValueAtTime(.07,t+.35);sg.gain.exponentialRampToValueAtTime(.0001,t+1.25);shimmer.connect(sg).connect(master);shimmer.start(t+.22);shimmer.stop(t+1.3)}
+function randInCircle(radius){const a=Math.random()*Math.PI*2,r=Math.sqrt(Math.random())*radius;return{x:Math.cos(a)*r,z:Math.sin(a)*r,r}}
+function clearFx(){for(const c of crystals)fx.remove(c.group);for(const s of shards)fx.remove(s.mesh);for(const r of rings)fx.remove(r.mesh);crystals=[];shards=[];rings=[]}
+function makeCrystal(now){const p=randInCircle(17.2),size=.7+(1-p.r/17.2)*.95+Math.random()*.55,h=2+size*(1.9+Math.random()*1.6),g=new THREE.Group();g.position.set(p.x,-.06,p.z);g.rotation.y=Math.random()*Math.PI*2;const core=new THREE.Mesh(crystalGeo,crystalMat.clone());core.scale.set(size*(.42+Math.random()*.36),h/3.7,size*(.38+Math.random()*.3));g.add(core);const glow=new THREE.Mesh(crystalGeo,crystalOuterMat.clone());glow.scale.copy(core.scale).multiplyScalar(1.22);g.add(glow);const count=1+Math.floor(Math.random()*3);for(let i=0;i<count;i++){const a=i/count*Math.PI*2+Math.random()*.7,d=.18+Math.random()*.42,side=new THREE.Mesh(sideGeo,crystalMat.clone());side.position.set(Math.cos(a)*d,.1,Math.sin(a)*d);side.rotation.z=(Math.random()*.55+.25)*(Math.random()>.5?1:-1);side.rotation.x=Math.random()*.25;side.scale.setScalar(.7+Math.random()*.85);g.add(side)}g.scale.set(1,.04,1);fx.add(g);crystals.push({group:g,core,glow,born:now,rise:480+Math.random()*420,hold:380+Math.random()*350,delay:Math.random()*350})}
+function burstRing(now){const mesh=new THREE.Mesh(new THREE.TorusGeometry(.8,.08,8,56),ringMat.clone());mesh.rotation.x=Math.PI/2;mesh.position.y=.18;fx.add(mesh);rings.push({mesh,born:now,life:900,max:18.2})}
+function spawnShards(now){for(let i=0;i<130;i++){const p=randInCircle(17),m=new THREE.Mesh(shardGeo,mistMat.clone());m.position.set(p.x,.18+Math.random()*.25,p.z);m.scale.setScalar(.55+Math.random()*1.35);m.userData.v=new THREE.Vector3((Math.random()-.5)*.06,.02+Math.random()*.06,(Math.random()-.5)*.06);fx.add(m);shards.push({mesh:m,born:now+Math.random()*250,life:650+Math.random()*600,type:Math.random()>.42?'mist':'ice'})}}
+function cast(withSound=true){if(active)return;clearFx();active=true;start=performance.now();if(withSound)iceSound();burstRing(start);spawnShards(start);for(let i=0;i<68;i++)makeCrystal(start);const F=document.querySelector('#flash');F.style.opacity='.42';setTimeout(()=>F.style.opacity='0',65)}
+function updateCrystals(now){crystals=crystals.filter(c=>{const age=now-c.born-c.delay;if(age<0)return true;const total=c.rise+c.hold+520;if(age>total){fx.remove(c.group);return false}if(age<=c.rise){const u=age/c.rise,e=1-Math.pow(1-u,3);c.group.scale.y=.04+e*.96;c.group.position.y=e*.1;c.group.rotation.y+=.008}else{c.group.scale.y=1;const f=Math.max(0,age-c.rise-c.hold)/520;c.core.material.opacity=Math.max(0,.96*(1-f));c.glow.material.opacity=Math.max(0,.18*(1-f))}return true})}
+function updateShards(now){shards=shards.filter(s=>{const age=now-s.born;if(age<0)return true;if(age>s.life){fx.remove(s.mesh);return false}s.mesh.position.add(s.mesh.userData.v);s.mesh.userData.v.y*=.985;s.mesh.scale.multiplyScalar(.9985);s.mesh.material.opacity=(s.type==='mist'?.18:.24)*(1-age/s.life);return true})}
+function updateRings(now){rings=rings.filter(r=>{const age=now-r.born;if(age>r.life){fx.remove(r.mesh);return false}const u=age/r.life,sc=1+u*(r.max/.8);r.mesh.scale.setScalar(sc);r.mesh.material.opacity=.9*(1-u);return true})}
+function loop(now){requestAnimationFrame(loop);controls.update();if(active){const age=now-start;updateCrystals(now);updateShards(now);updateRings(now);coldLight.intensity=7+Math.max(0,1-age/1100)*30;areaRing.material.opacity=.22+Math.sin(now*.009)*.05;areaFill.material.opacity=.05+Math.sin(now*.007)*.02;bloom.strength=1.85+Math.max(0,1-age/800)*.65;if(age>2300&&!crystals.length&&!shards.length&&!rings.length){active=false;coldLight.intensity=0}}composer.render()}
+requestAnimationFrame(loop);document.querySelector('#cast').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();setupAudio();cast(true)});addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);composer.setSize(innerWidth,innerHeight)});setTimeout(()=>cast(false),900);
+</script></body></html>
